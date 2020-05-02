@@ -1,0 +1,5043 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /api/v2/auth/account/:
+    get:
+      operationId: RetrieveUser
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 191
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  limit_domains:
+                    type: integer
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    nullable: true
+                required:
+                - email
+          description: ''
+  /api/v2/auth/tokens/:
+    get:
+      operationId: listTokens
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          readOnly: true
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        name:
+                          type: string
+                          maxLength: 64
+          description: ''
+    post:
+      operationId: createToken
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+          description: ''
+  /api/v2/auth/tokens/{id}/:
+    get:
+      operationId: retrieveToken
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+          description: ''
+    delete:
+      operationId: destroyToken
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/:
+    get:
+      operationId: listRoots
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+  /api/v2/domains/:
+    get:
+      operationId: listDomains
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        published:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        name:
+                          type: string
+                          pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                          maxLength: 191
+                        minimum_ttl:
+                          type: integer
+                          readOnly: true
+                      required:
+                      - name
+          description: ''
+    post:
+      operationId: createDomain
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                  maxLength: 191
+              required:
+              - name
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  published:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                    maxLength: 191
+                  keys:
+                    type: string
+                    readOnly: true
+                  minimum_ttl:
+                    type: integer
+                    readOnly: true
+                required:
+                - name
+          description: ''
+  /api/v2/domains/{name}/:
+    get:
+      operationId: retrieveDomain
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  published:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                    maxLength: 191
+                  keys:
+                    type: string
+                    readOnly: true
+                  minimum_ttl:
+                    type: integer
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    delete:
+      operationId: destroyDomain
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/domains/{name}/rrsets/:
+    get:
+      operationId: listRRsets
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        domain:
+                          type: string
+                          readOnly: true
+                        subname:
+                          type: string
+                          pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                          maxLength: 178
+                        name:
+                          type: string
+                          readOnly: true
+                        records:
+                          type: array
+                          items:
+                            properties:
+                              content:
+                                type: string
+                                maxLength: 500
+                            required:
+                            - content
+                        ttl:
+                          type: integer
+                          maximum: 604800
+                          minimum: 3600
+                        type:
+                          type: string
+                          pattern: ^[A-Z][A-Z0-9]*$
+                          maxLength: 10
+                      required:
+                      - records
+                      - ttl
+                      - type
+          description: ''
+    post:
+      operationId: CreateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+  /api/v2/domains/{name}/rrsets/.../{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/domains/{name}/rrsets/{subname}\.\.\./{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/domains/{name}/rrsets/@/{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/domains/{name}/rrsets/{subname}@/{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/domains/{name}/rrsets/{subname}/{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v2/dyndns/update:
+    get:
+      operationId: listDynDNS12Updates
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            '*/*':
+              schema:
+                type: array
+                items: {}
+          description: ''
+  /api/v2/serials/:
+    get:
+      operationId: listSerials
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+  /api/v2/v/activate-account/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedActivateUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id001
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  domain:
+                    type: string
+                    nullable: true
+                    maxLength: 191
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id001
+          description: ''
+    post:
+      operationId: CreateAuthenticatedActivateUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+                domain:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+              required:
+              - state
+              - user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id002
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  domain:
+                    type: string
+                    nullable: true
+                    maxLength: 191
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id002
+          description: ''
+  /api/v2/v/change-email/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedChangeEmailUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id003
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  new_email:
+                    type: string
+                    format: email
+                required:
+                - state
+                - user
+                - new_email
+            text/html:
+              schema: *id003
+          description: ''
+    post:
+      operationId: CreateAuthenticatedChangeEmailUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+                new_email:
+                  type: string
+                  format: email
+              required:
+              - state
+              - user
+              - new_email
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id004
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  new_email:
+                    type: string
+                    format: email
+                required:
+                - state
+                - user
+                - new_email
+            text/html:
+              schema: *id004
+          description: ''
+  /api/v2/v/reset-password/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedResetPasswordUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id005
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id005
+          description: ''
+    post:
+      operationId: CreateAuthenticatedResetPasswordUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+                new_password:
+                  type: string
+                  writeOnly: true
+              required:
+              - state
+              - user
+              - new_password
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id006
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id006
+          description: ''
+  /api/v2/v/delete-account/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedDeleteUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id007
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id007
+          description: ''
+    post:
+      operationId: CreateAuthenticatedDeleteUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+              required:
+              - state
+              - user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id008
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id008
+          description: ''
+  /api/v1/auth/account/:
+    get:
+      operationId: RetrieveUser
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 191
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  limit_domains:
+                    type: integer
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    nullable: true
+                required:
+                - email
+          description: ''
+  /api/v1/auth/tokens/:
+    get:
+      operationId: listTokens
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          readOnly: true
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        name:
+                          type: string
+                          maxLength: 64
+          description: ''
+    post:
+      operationId: createToken
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+          description: ''
+  /api/v1/auth/tokens/{id}/:
+    get:
+      operationId: retrieveToken
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+          description: ''
+    delete:
+      operationId: destroyToken
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/:
+    get:
+      operationId: listRoots
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+  /api/v1/domains/:
+    get:
+      operationId: listDomains
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        published:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        name:
+                          type: string
+                          pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                          maxLength: 191
+                        minimum_ttl:
+                          type: integer
+                          readOnly: true
+                      required:
+                      - name
+          description: ''
+    post:
+      operationId: createDomain
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                  maxLength: 191
+              required:
+              - name
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  published:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                    maxLength: 191
+                  keys:
+                    type: string
+                    readOnly: true
+                  minimum_ttl:
+                    type: integer
+                    readOnly: true
+                required:
+                - name
+          description: ''
+  /api/v1/domains/{name}/:
+    get:
+      operationId: retrieveDomain
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  published:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  name:
+                    type: string
+                    pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                    maxLength: 191
+                  keys:
+                    type: string
+                    readOnly: true
+                  minimum_ttl:
+                    type: integer
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    delete:
+      operationId: destroyDomain
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/domains/{name}/rrsets/:
+    get:
+      operationId: listRRsets
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        domain:
+                          type: string
+                          readOnly: true
+                        subname:
+                          type: string
+                          pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                          maxLength: 178
+                        name:
+                          type: string
+                          readOnly: true
+                        records:
+                          type: array
+                          items:
+                            properties:
+                              content:
+                                type: string
+                                maxLength: 500
+                            required:
+                            - content
+                        ttl:
+                          type: integer
+                          maximum: 604800
+                          minimum: 3600
+                        type:
+                          type: string
+                          pattern: ^[A-Z][A-Z0-9]*$
+                          maxLength: 10
+                      required:
+                      - records
+                      - ttl
+                      - type
+          description: ''
+    post:
+      operationId: CreateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+  /api/v1/domains/{name}/rrsets/.../{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/domains/{name}/rrsets/{subname}\.\.\./{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/domains/{name}/rrsets/@/{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/domains/{name}/rrsets/{subname}@/{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/domains/{name}/rrsets/{subname}/{type}/:
+    get:
+      operationId: RetrieveRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    put:
+      operationId: UpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+              required:
+              - records
+              - ttl
+              - type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    patch:
+      operationId: PartialUpdateRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subname:
+                  type: string
+                  pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                  maxLength: 178
+                records:
+                  type: array
+                  items:
+                    properties:
+                      content:
+                        type: string
+                        maxLength: 500
+                    required:
+                    - content
+                ttl:
+                  type: integer
+                  maximum: 604800
+                  minimum: 3600
+                type:
+                  type: string
+                  pattern: ^[A-Z][A-Z0-9]*$
+                  maxLength: 10
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  domain:
+                    type: string
+                    readOnly: true
+                  subname:
+                    type: string
+                    pattern: ^([*]|(([*][.])?[a-z0-9_.-]*))$
+                    maxLength: 178
+                  name:
+                    type: string
+                    readOnly: true
+                  records:
+                    type: array
+                    items:
+                      properties:
+                        content:
+                          type: string
+                          maxLength: 500
+                      required:
+                      - content
+                  ttl:
+                    type: integer
+                    maximum: 604800
+                    minimum: 3600
+                  type:
+                    type: string
+                    pattern: ^[A-Z][A-Z0-9]*$
+                    maxLength: 10
+                required:
+                - records
+                - ttl
+                - type
+          description: ''
+    delete:
+      operationId: DestroyRRset
+      description: ''
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: subname
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: type
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api/v1/dyndns/update:
+    get:
+      operationId: listDynDNS12Updates
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            '*/*':
+              schema:
+                type: array
+                items: {}
+          description: ''
+  /api/v1/serials/:
+    get:
+      operationId: listSerials
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+  /api/v1/v/activate-account/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedActivateUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id009
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  domain:
+                    type: string
+                    nullable: true
+                    maxLength: 191
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id009
+          description: ''
+    post:
+      operationId: CreateAuthenticatedActivateUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+                domain:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+              required:
+              - state
+              - user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id010
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  domain:
+                    type: string
+                    nullable: true
+                    maxLength: 191
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id010
+          description: ''
+  /api/v1/v/change-email/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedChangeEmailUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id011
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  new_email:
+                    type: string
+                    format: email
+                required:
+                - state
+                - user
+                - new_email
+            text/html:
+              schema: *id011
+          description: ''
+    post:
+      operationId: CreateAuthenticatedChangeEmailUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+                new_email:
+                  type: string
+                  format: email
+              required:
+              - state
+              - user
+              - new_email
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id012
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                  new_email:
+                    type: string
+                    format: email
+                required:
+                - state
+                - user
+                - new_email
+            text/html:
+              schema: *id012
+          description: ''
+  /api/v1/v/reset-password/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedResetPasswordUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id013
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id013
+          description: ''
+    post:
+      operationId: CreateAuthenticatedResetPasswordUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+                new_password:
+                  type: string
+                  writeOnly: true
+              required:
+              - state
+              - user
+              - new_password
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id014
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id014
+          description: ''
+  /api/v1/v/delete-account/{code}/:
+    get:
+      operationId: RetrieveAuthenticatedDeleteUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id015
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id015
+          description: ''
+    post:
+      operationId: CreateAuthenticatedDeleteUserAction
+      description: ''
+      parameters:
+      - name: code
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                user:
+                  type: string
+              required:
+              - state
+              - user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: &id016
+                properties:
+                  state:
+                    type: string
+                  user:
+                    type: string
+                required:
+                - state
+                - user
+            text/html:
+              schema: *id016
+          description: ''
+  /api/v2/auth/:
+    post:
+      operationId: CreateRegisterAccount
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 191
+                password:
+                  type: string
+                  writeOnly: true
+                  nullable: true
+                  maxLength: 128
+                domain:
+                  type: string
+                  pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                captcha:
+                  properties:
+                    id:
+                      type: string
+                    solution:
+                      type: string
+                      writeOnly: true
+                  required:
+                  - id
+                  - solution
+                  type: object
+              required:
+              - email
+              - password
+              - captcha
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 191
+                  domain:
+                    type: string
+                    pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                  captcha:
+                    properties:
+                      id:
+                        type: string
+                      solution:
+                        type: string
+                        writeOnly: true
+                    required:
+                    - id
+                    - solution
+                    type: object
+                required:
+                - email
+                - captcha
+          description: ''
+  /api/v2/auth/account/delete/:
+    post:
+      operationId: CreateAccountDelete
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api/v2/auth/account/change-email/:
+    post:
+      operationId: CreateChangeEmail
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                new_email:
+                  type: string
+                  format: email
+              required:
+              - new_email
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  new_email:
+                    type: string
+                    format: email
+                required:
+                - new_email
+          description: ''
+  /api/v2/auth/account/reset-password/:
+    post:
+      operationId: CreateResetPassword
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                captcha:
+                  properties:
+                    id:
+                      type: string
+                    solution:
+                      type: string
+                      writeOnly: true
+                  required:
+                  - id
+                  - solution
+                  type: object
+              required:
+              - email
+              - captcha
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  email:
+                    type: string
+                    format: email
+                  captcha:
+                    properties:
+                      id:
+                        type: string
+                      solution:
+                        type: string
+                        writeOnly: true
+                    required:
+                    - id
+                    - solution
+                    type: object
+                required:
+                - email
+                - captcha
+          description: ''
+  /api/v2/auth/login/:
+    post:
+      operationId: CreateAccountLogin
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api/v2/auth/logout/:
+    post:
+      operationId: CreateAccountLogout
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api/v2/donation/:
+    post:
+      operationId: CreateDonation
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                iban:
+                  type: string
+                  maxLength: 34
+                bic:
+                  type: string
+                  maxLength: 11
+                amount:
+                  type: number
+                  multipleOf: 0.01
+                  maximum: 1000000
+                  minimum: -1000000
+                message:
+                  type: string
+                  maxLength: 255
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+              required:
+              - name
+              - iban
+              - amount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    type: string
+                    maxLength: 255
+                  iban:
+                    type: string
+                    maxLength: 34
+                  bic:
+                    type: string
+                    maxLength: 11
+                  amount:
+                    type: number
+                    multipleOf: 0.01
+                    maximum: 1000000
+                    minimum: -1000000
+                  message:
+                    type: string
+                    maxLength: 255
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 255
+                  mref:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+                - iban
+                - amount
+          description: ''
+  /api/v2/captcha/:
+    post:
+      operationId: CreateCaptcha
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
+                  maxLength: 24
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  challenge:
+                    type: string
+                    readOnly: true
+                  content:
+                    type: string
+                    maxLength: 24
+          description: ''
+  /api/v1/auth/:
+    post:
+      operationId: CreateRegisterAccount
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 191
+                password:
+                  type: string
+                  writeOnly: true
+                  nullable: true
+                  maxLength: 128
+                domain:
+                  type: string
+                  pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                captcha:
+                  properties:
+                    id:
+                      type: string
+                    solution:
+                      type: string
+                      writeOnly: true
+                  required:
+                  - id
+                  - solution
+                  type: object
+              required:
+              - email
+              - password
+              - captcha
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 191
+                  domain:
+                    type: string
+                    pattern: ^([a-z0-9_-]{1,63}\.)*[a-z]{1,63}$
+                  captcha:
+                    properties:
+                      id:
+                        type: string
+                      solution:
+                        type: string
+                        writeOnly: true
+                    required:
+                    - id
+                    - solution
+                    type: object
+                required:
+                - email
+                - captcha
+          description: ''
+  /api/v1/auth/account/delete/:
+    post:
+      operationId: CreateAccountDelete
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api/v1/auth/account/change-email/:
+    post:
+      operationId: CreateChangeEmail
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                new_email:
+                  type: string
+                  format: email
+              required:
+              - new_email
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  new_email:
+                    type: string
+                    format: email
+                required:
+                - new_email
+          description: ''
+  /api/v1/auth/account/reset-password/:
+    post:
+      operationId: CreateResetPassword
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                captcha:
+                  properties:
+                    id:
+                      type: string
+                    solution:
+                      type: string
+                      writeOnly: true
+                  required:
+                  - id
+                  - solution
+                  type: object
+              required:
+              - email
+              - captcha
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  email:
+                    type: string
+                    format: email
+                  captcha:
+                    properties:
+                      id:
+                        type: string
+                      solution:
+                        type: string
+                        writeOnly: true
+                    required:
+                    - id
+                    - solution
+                    type: object
+                required:
+                - email
+                - captcha
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: CreateAccountLogin
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: CreateAccountLogout
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api/v1/donation/:
+    post:
+      operationId: CreateDonation
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                iban:
+                  type: string
+                  maxLength: 34
+                bic:
+                  type: string
+                  maxLength: 11
+                amount:
+                  type: number
+                  multipleOf: 0.01
+                  maximum: 1000000
+                  minimum: -1000000
+                message:
+                  type: string
+                  maxLength: 255
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+              required:
+              - name
+              - iban
+              - amount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    type: string
+                    maxLength: 255
+                  iban:
+                    type: string
+                    maxLength: 34
+                  bic:
+                    type: string
+                    maxLength: 11
+                  amount:
+                    type: number
+                    multipleOf: 0.01
+                    maximum: 1000000
+                    minimum: -1000000
+                  message:
+                    type: string
+                    maxLength: 255
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 255
+                  mref:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+                - iban
+                - amount
+          description: ''
+  /api/v1/captcha/:
+    post:
+      operationId: CreateCaptcha
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
+                  maxLength: 24
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  challenge:
+                    type: string
+                    readOnly: true
+                  content:
+                    type: string
+                    maxLength: 24
+          description: ''

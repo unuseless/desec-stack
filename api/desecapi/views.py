@@ -78,8 +78,11 @@ class TokenViewSet(IdempotentDestroyMixin, viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         # When creating a new token, return the plaintext representation
-        if self.request.method == 'POST':
-            kwargs.setdefault('include_plain', True)
+        try:
+            if self.request.method == 'POST':
+                kwargs.setdefault('include_plain', True)
+        except AttributeError:  # .request is None
+            pass
         return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):
@@ -130,11 +133,11 @@ class DomainViewSet(IdempotentDestroyMixin,
                 parent_domain.update_delegation(instance)
 
 
-class SerialList(generics.ListAPIView):
+class SerialList(APIView):
     permission_classes = (IsVPNClient,)
     throttle_classes = []  # don't break slaves when they ask too often (our cached responses are cheap)
 
-    def list(self, request):
+    def get(self, request):
         key = 'desecapi.views.serials'
         serials = cache.get(key)
         if serials is None:
@@ -166,7 +169,12 @@ class RRsetDetail(IdempotentDestroyMixin, DomainViewMixin, generics.RetrieveUpda
         return obj
 
     def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(domain=self.domain, *args, **kwargs)
+        try:
+            kwargs.setdefault('domain', self.domain)
+        except AttributeError:
+            kwargs.setdefault('domain', models.Domain())
+
+        return super().get_serializer(*args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
@@ -217,13 +225,18 @@ class RRsetList(EmptyPayloadMixin, DomainViewMixin, generics.ListCreateAPIView, 
     def get_serializer(self, *args, **kwargs):
         kwargs = kwargs.copy()
 
-        if 'many' not in kwargs:
+        if 'many' not in kwargs and self.request:
             if self.request.method in ['POST']:
                 kwargs['many'] = isinstance(kwargs.get('data'), list)
             elif self.request.method in ['PATCH', 'PUT']:
                 kwargs['many'] = True
 
-        return super().get_serializer(domain=self.domain, *args, **kwargs)
+        try:
+            kwargs.setdefault('domain', self.domain)
+        except AttributeError:
+            kwargs.setdefault('domain', models.Domain())
+
+        return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):
         with PDNSChangeTracker():
@@ -468,7 +481,7 @@ class AccountView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class AccountDeleteView(generics.GenericAPIView):
+class AccountDeleteView(APIView):
     authentication_classes = (auth.EmailPasswordPayloadAuthentication,)
     permission_classes = (IsAuthenticated,)
     response_still_has_domains = Response(
@@ -490,7 +503,7 @@ class AccountDeleteView(generics.GenericAPIView):
                         status=status.HTTP_202_ACCEPTED)
 
 
-class AccountLoginView(generics.GenericAPIView):
+class AccountLoginView(APIView):
     authentication_classes = (auth.EmailPasswordPayloadAuthentication,)
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'account_management_passive'
@@ -505,7 +518,7 @@ class AccountLoginView(generics.GenericAPIView):
         return Response(data)
 
 
-class AccountLogoutView(generics.GenericAPIView, mixins.DestroyModelMixin):
+class AccountLogoutView(APIView, mixins.DestroyModelMixin):
     authentication_classes = (auth.TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     throttle_classes = []  # always allow people to log out
@@ -577,7 +590,7 @@ class AuthenticatedActionView(generics.GenericAPIView):
     Abstract class. Deserializes the given payload according the serializers specified by the view extending
     this class. If the `serializer.is_valid`, `act` is called on the action object.
     """
-    action = None
+    auth_action = None
     authentication_classes = (auth.AuthenticatedActionAuthentication,)
     html_url = None
     http_method_names = ['get', 'post']  # GET is for redirect only
@@ -588,7 +601,7 @@ class AuthenticatedActionView(generics.GenericAPIView):
         return 'account_management_passive' if self.request.method in SAFE_METHODS else 'account_management_active'
 
     def get_serializer_context(self):
-        return {**super().get_serializer_context(), 'code': self.kwargs['code']}
+        return {**super().get_serializer_context(), 'code': self.kwargs.get('code')}
 
     def perform_authentication(self, request):
         # Delay authentication until request.auth or request.user is first accessed.
@@ -610,11 +623,11 @@ class AuthenticatedActionView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            self.action = serializer.Meta.model(**serializer.validated_data)
+            self.auth_action = serializer.Meta.model(**serializer.validated_data)
         except ValueError:  # this happens when state cannot be verified
             raise ValidationError('Invalid code.')
 
-        self.action.act()
+        self.auth_action.act()
         return self.finalize()
 
     def finalize(self):
@@ -626,7 +639,7 @@ class AuthenticatedActivateUserActionView(AuthenticatedActionView):
     serializer_class = serializers.AuthenticatedActivateUserActionSerializer
 
     def finalize(self):
-        if not self.action.domain:
+        if not self.auth_action.domain:
             return self._finalize_without_domain()
         else:
             domain = self._create_domain()
@@ -634,25 +647,25 @@ class AuthenticatedActivateUserActionView(AuthenticatedActionView):
 
     def _create_domain(self):
         serializer = serializers.DomainSerializer(
-            data={'name': self.action.domain},
+            data={'name': self.auth_action.domain},
             context=self.get_serializer_context()
         )
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as e:  # e.g. domain name unavailable
-            self.action.user.delete()
+            self.auth_action.user.delete()
             reasons = ', '.join([detail.code for detail in e.detail.get('name', [])])
             raise ValidationError(
-                f'The requested domain {self.action.domain} could not be registered (reason: {reasons}). '
+                f'The requested domain {self.auth_action.domain} could not be registered (reason: {reasons}). '
                 f'Please start over and sign up again.'
             )
         # TODO the following line is subject to race condition and can fail, as for the domain name, we have that
         #  time-of-check != time-of-action
-        return PDNSChangeTracker.track(lambda: serializer.save(owner=self.action.user))
+        return PDNSChangeTracker.track(lambda: serializer.save(owner=self.auth_action.user))
 
     def _finalize_without_domain(self):
-        if not is_password_usable(self.action.user.password):
-            AccountResetPasswordView.send_reset_token(self.action.user, self.request)
+        if not is_password_usable(self.auth_action.user.password):
+            AccountResetPasswordView.send_reset_token(self.auth_action.user, self.request)
             return Response({
                 'detail': 'Success! We sent you instructions on how to set your password.'
             })
@@ -685,7 +698,7 @@ class AuthenticatedChangeEmailUserActionView(AuthenticatedActionView):
 
     def finalize(self):
         return Response({
-            'detail': f'Success! Your email address has been changed to {self.action.user.email}.'
+            'detail': f'Success! Your email address has been changed to {self.auth_action.user.email}.'
         })
 
 
