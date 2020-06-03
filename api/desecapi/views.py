@@ -234,6 +234,16 @@ class RRsetList(EmptyPayloadMixin, DomainViewMixin, generics.ListCreateAPIView, 
             serializer.save()
 
 
+class AXFR(DomainViewMixin, generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated, IsOwner)
+    lookup_field = 'name'
+    lookup_value_regex = r'[^/]+'
+    serializer_class = serializers.AXFRSerializer
+
+    def get_queryset(self):
+        return self.request.user.domains
+
+
 class Root(APIView):
     def get(self, request, *_):
         if self.request.user.is_authenticated:

@@ -235,6 +235,15 @@ class DomainOwnerTestCase1(DomainOwnerTestCase):
             self.assertEqual(response.data['name'], self.my_domain.name)
             self.assertTrue(isinstance(response.data['keys'], list))
 
+    def test_axfr_my_domain(self):
+        url = self.reverse('v1:axfr', name=self.my_domain.name)
+        with self.assertPdnsRequests(
+                self.request_pdns_zone_retrieve_axfr(name=self.my_domain.name)
+        ):
+            response = self.client.get(url)
+            self.assertStatus(response, status.HTTP_200_OK)
+            self.assertEqual(response.data['axfr'], 'AXFR dummy!')
+
     def test_retrieve_other_domains(self):
         for domain in self.other_domains:
             response = self.client.get(self.reverse('v1:domain-detail', name=domain.name))

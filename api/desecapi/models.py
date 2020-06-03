@@ -334,6 +334,10 @@ class Domain(ExportModelOperationsMixin('Domain'), models.Model):
         subname, _, parent_name = self.name.partition('.')
         return subname, parent_name or None
 
+    @property
+    def axfr(self):
+        return pdns.get_axfr(self)
+
     def save(self, *args, **kwargs):
         self.full_clean(validate_unique=False)
         super().save(*args, **kwargs)

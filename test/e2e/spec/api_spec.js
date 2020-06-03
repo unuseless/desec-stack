@@ -523,6 +523,34 @@ describe("API v1", function () {
                         return expect(response).to.have.status(201);
                     });
 
+                    it("can retrieve zone AXFR", function () {
+                        let regex = new RegExp(
+                            (
+                                '*.foobar.' + domain + '.\t60\tIN\tAAAA\t::1\n' +
+                                '*.foobar.' + domain + '.\t60\tIN\tAAAA\tbade::affe\n' +
+                                'a.2.' + domain + '.\t3650\tIN\tTXT\t"foo"\n' +
+                                'c.2.' + domain + '.\t3650\tIN\tTXT\t"foo"\n' +
+                                'delete-test.' + domain + '.\t3650\tIN\tA\t127.1.2.3\n' +
+                                'duplicate-contents.' + domain + '.\t60\tIN\tAAAA\t::1\n' +
+                                '' + domain + '.\t60\tIN\tA\t127.0.0.1\n' +
+                                '' + domain + '.\t3633\tIN\tMX\t10 mail.example.com.\n' +
+                                '' + domain + '.\t3633\tIN\tMX\t20 mail.example.net.\n' +
+                                '' + domain + '.\t3600\tIN\tNS\tns1.desec.io.\n' +
+                                '' + domain + '.\t300\tIN\tSOA\tset.an.example. get.desec.io. [0-9 ]+\n' +
+                                '' + domain + '.\t3650\tIN\tTXT\t"foo"\n' +
+                                'ipv6.' + domain + '.\t3622\tIN\tAAAA\tdead::beef\n' +
+                                'replace-test-1.' + domain + '.\t3650\tIN\tAAAA\t::1\n' +
+                                'replace-test-1.' + domain + '.\t3650\tIN\tAAAA\t::2\n' +
+                                'replace-test-2.' + domain + '.\t3650\tIN\tAAAA\t::1\n' +
+                                'replace-test-2.' + domain + '.\t3650\tIN\tAAAA\t::2\n'
+                            ).replace(/\./g, '\\.').replace(/\*/g, '\\*'),
+                          'g'
+                        )
+                        return chakram.get('/domains/' + domain + '/axfr/').then(function (response) {
+                            return expect(response.body.axfr).to.match(regex);
+                        });
+                    });
+
                     describe("can delete an RRset", function () {
                         before(function () {
                             var response = chakram.delete('/domains/' + domain + '/rrsets/delete-test.../A/');

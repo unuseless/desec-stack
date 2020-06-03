@@ -511,6 +511,14 @@ class RRsetListSerializer(serializers.ListSerializer):
         return super().save(**kwargs)
 
 
+class AXFRSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Domain
+        fields = ('axfr',)
+        read_only_fields = ('axfr',)
+
+
 class DomainSerializer(serializers.ModelSerializer):
 
     class Meta:

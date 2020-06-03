@@ -37,6 +37,7 @@ api_urls = [
     re_path(r'^domains/(?P<name>[^/]+)/rrsets/(?P<subname>[^/]*)@/(?P<type>[^/]+)/$',
             views.RRsetDetail.as_view(), name='rrset@'),
     path('domains/<name>/rrsets/<subname>/<type>/', views.RRsetDetail.as_view()),
+    path('domains/<name>/axfr/', views.AXFR.as_view(), name='axfr'),
 
     # DynDNS update
     path('dyndns/update', views.DynDNS12Update.as_view(), name='dyndns12update'),

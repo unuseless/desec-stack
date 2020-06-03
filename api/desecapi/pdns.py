@@ -98,6 +98,15 @@ def get_zone(domain):
     return r.json()
 
 
+def get_axfr(domain):
+    """
+    Retrieves a dict representation of the zone from pdns
+    """
+    r = _pdns_get(NSLORD, '/zones/' + pdns_id(domain.name) + '/export')
+
+    return r.json()['zone']
+
+
 def get_rrset_datas(domain):
     """
     Retrieves a dict representation of the RRsets in a given zone
