@@ -1,4 +1,5 @@
 import base64
+from ipaddress import ip_address
 
 from django.contrib.auth.hashers import PBKDF2PasswordHasher
 from django.utils import timezone
@@ -15,6 +16,20 @@ from desecapi.serializers import AuthenticatedBasicUserActionSerializer, EmailPa
 
 class TokenAuthentication(RestFrameworkTokenAuthentication):
     model = Token
+
+    def authenticate(self, request):
+        try:
+            user, token = super().authenticate(request)
+        except TypeError:  # TypeError: cannot unpack non-iterable NoneType object
+            return None  # unauthenticated
+
+        client_ip = ip_address(request.META.get('REMOTE_ADDR'))
+        # This can likely be done within Postgres with django-postgres-extensions (client_ip <<= ANY allowed_subnets).
+        # However, the django-postgres-extensions package is unmaintained, and the GitHub repo has been archived.
+        if not any(client_ip in subnet for subnet in token.allowed_subnets):
+            raise exceptions.AuthenticationFailed('Invalid token.')
+
+        return user, token
 
     def authenticate_credentials(self, key):
         key = Token.make_hash(key)

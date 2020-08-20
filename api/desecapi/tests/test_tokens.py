@@ -24,6 +24,7 @@ class TokenPermittedTestCase(DomainOwnerTestCase):
         self.assertEqual(len(response.data), 2)
         self.assertIn('id', response.data[0])
         self.assertFalse(any(field in response.data[0] for field in ['token', 'key', 'value']))
+        self.assertFalse(any(token.encode() in response.content for token in [self.token.plain, self.token2.plain,]))
         self.assertNotContains(response, self.token.plain)
 
     def test_delete_my_token(self):
@@ -44,7 +45,7 @@ class TokenPermittedTestCase(DomainOwnerTestCase):
         response = self.client.get(url)
         self.assertStatus(response, status.HTTP_200_OK)
         self.assertTrue(all(field in response.data for field in ['created', 'id', 'last_used', 'name',
-                                                                 'perm_manage_tokens']))
+                                                                 'perm_manage_tokens', 'allowed_subnets']))
         self.assertFalse(any(field in response.data for field in ['token', 'key', 'value']))
 
     def test_retrieve_other_token(self):
@@ -77,7 +78,8 @@ class TokenPermittedTestCase(DomainOwnerTestCase):
         for data in datas:
             response = self.client.post(self.reverse('v1:token-list'), data=data)
             self.assertStatus(response, status.HTTP_201_CREATED)
-            self.assertTrue(all(field in response.data for field in ['id', 'created', 'token', 'name']))
+            self.assertTrue(all(field in response.data for field in ['id', 'created', 'token', 'name',
+                                                                     'perm_manage_tokens', 'allowed_subnets']))
             self.assertEqual(response.data['name'], data.get('name', ''))
             self.assertIsNone(response.data['last_used'])
 

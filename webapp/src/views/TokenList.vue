@@ -45,6 +45,18 @@ export default {
             datatype: 'GenericText',
             searchable: true,
           },
+          allowed_subnets: {
+            name: 'item.allowed_subnets',
+            text: 'Client subnets',
+            textCreate: 'Allowed client subnets',
+            align: 'left',
+            sortable: true,
+            value: 'allowed_subnets',
+            readonly: false,
+            datatype: 'RecordList',
+            fieldProps: () => ({ type: '' }),
+            searchable: true,
+          },
           perm_manage_tokens: {
             name: 'item.perm_manage_tokens',
             text: 'Can manage tokens',
