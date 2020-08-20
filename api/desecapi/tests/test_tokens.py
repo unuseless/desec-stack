@@ -22,6 +22,7 @@ class TokenTestCase(DomainOwnerTestCase):
         self.assertEqual(len(response.data), 2)
         self.assertIn('id', response.data[0])
         self.assertFalse(any(field in response.data[0] for field in ['token', 'key', 'value']))
+        self.assertFalse(any(token.encode() in response.content for token in [self.token.plain, self.token2.plain,]))
         self.assertNotContains(response, self.token.plain)
 
     def test_delete_my_token(self):
@@ -66,8 +67,20 @@ class TokenTestCase(DomainOwnerTestCase):
         for data in datas:
             response = self.client.post(self.reverse('v1:token-list'), data=data)
             self.assertStatus(response, status.HTTP_201_CREATED)
-            self.assertTrue(all(field in response.data for field in ['id', 'created', 'token', 'name']))
+            self.assertTrue(all(field in response.data for field in ['id', 'created', 'token', 'name', 'policy']))
             self.assertEqual(response.data['name'], data.get('name', ''))
             self.assertIsNone(response.data['last_used'])
 
         self.assertEqual(len(Token.objects.filter(user=self.owner).all()), n + len(datas))
+
+
+class TokenPolicyTestCase(DomainOwnerTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.token2 = self.create_token(self.owner, name='testtoken')
+        self.other_token = self.create_token(self.user)
+
+    # test creation with, with empty, with invalid, without policy/subnets
+    # test update with, with empty, with invalid, without policy/subnets
+    # test authentication based on subnets policy
