@@ -48,32 +48,84 @@ class CaptchaSolutionSerializer(serializers.Serializer):
         return attrs
 
 
+class DomainRelatedField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        return models.Domain.objects.filter(owner=self.context['request'].user)
+
+
+class TokenPolicyDomainsSerializer(serializers.ModelSerializer):
+    domains = DomainRelatedField(slug_field='name', many=True)
+
+    class Meta:
+        model = models.TokenPolicyDomains
+        fields = ('allow', 'domains',)
+
+
 class TokenPolicySerializer(serializers.ModelSerializer):
+    domains = TokenPolicyDomainsSerializer(allow_null=True)
     subnets = serializers.ListField(child=netfields_rf.CidrAddressField(), required=False)
 
     class Meta:
         model = models.TokenPolicy
-        fields = ('subnets',)
+        fields = ('subnets', 'domains',)
+
+    def create(self, validated_data):
+        # TODO Can raise KeyError if field is not required
+        domains_data = validated_data.pop('domains')
+        token_policy = super().create(validated_data)
+        if domains_data is not None:
+            # TODO Pass domains_data (already validated) or self.initial_data['domains'] to TokenPolicySerializer?
+            serializer = TokenPolicyDomainsSerializer(data=domains_data, context=self.context)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(token_policy=token_policy)
+        return token_policy
+
+    def update(self, instance, validated_data):
+        try:
+            domains_data = validated_data.pop('domains')
+        except KeyError:
+            pass  # domains unchanged
+        else:
+            domains = getattr(instance, 'domains', None)
+            if domains_data is None:
+                try:
+                    domains.delete()
+                except (AttributeError, models.TokenPolicy.domains.RelatedObjectDoesNotExist):
+                    pass
+                instance.domains = None
+            else:
+                serializer = TokenPolicyDomainsSerializer(instance=domains, data=domains_data, context=self.context)
+                serializer.is_valid(raise_exception=True)
+                serializer.save(token_policy=instance)
+        return super().update(instance, validated_data)
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def _default_policy():
+        return {'domains': None}
+
     token = serializers.ReadOnlyField(source='plain')
-    policy = TokenPolicySerializer(allow_null=True, default=None)
+    policy = TokenPolicySerializer(allow_null=True, default=_default_policy.__func__)
 
     class Meta:
         model = models.Token
         fields = ('id', 'created', 'last_used', 'name', 'policy', 'token',)
-        read_only_fields = ('id', 'created', 'last_used', 'token')
+        read_only_fields = ('id', 'created', 'last_used', 'token',)
 
     def __init__(self, *args, include_plain=False, **kwargs):
         self.include_plain = include_plain
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
+        # TODO Can raise KeyError if field is not required
         policy_data = validated_data.pop('policy')
         token = super().create(validated_data)
         if policy_data is not None:
-            policy = models.TokenPolicy.objects.create(token=token, **policy_data)
+            # TODO Pass policy_data (already validated) or self.initial_data['policy'] to TokenPolicySerializer?
+            serializer = TokenPolicySerializer(data=policy_data, context=self.context)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(token=token)
         return token
 
     def update(self, instance, validated_data):

@@ -412,6 +412,12 @@ class TokenPolicy(models.Model):
     objects = NetManager()
 
 
+# TODO Prometheus mixin
+class TokenPolicyDomains(models.Model):
+    token_policy = models.OneToOneField(TokenPolicy, on_delete=models.CASCADE, primary_key=True, related_name='domains')
+    allow = models.ManyToManyField(Domain, blank=True)
+
+
 class Donation(ExportModelOperationsMixin('Donation'), models.Model):
     @staticmethod
     def _created_default():
