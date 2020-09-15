@@ -23,7 +23,7 @@ from django.contrib.postgres.constraints import ExclusionConstraint
 from django.contrib.postgres.fields import ArrayField, CIEmailField, RangeOperators
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, get_connection
-from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Manager, Q
 from django.db.models.expressions import RawSQL
@@ -416,6 +416,13 @@ class TokenPolicy(models.Model):
 class TokenPolicyDomains(models.Model):
     token_policy = models.OneToOneField(TokenPolicy, on_delete=models.CASCADE, primary_key=True, related_name='domains')
     allow = models.ManyToManyField(Domain, blank=True)
+
+
+# TODO Prometheus mixin
+class TokenValidity(models.Model):
+    token = models.OneToOneField(Token, on_delete=models.CASCADE, primary_key=True, related_name='validity')
+    period = models.DurationField(validators=[MinValueValidator(timedelta(0))])
+    refresh = models.BooleanField('refresh on use', default=False)
 
 
 class Donation(ExportModelOperationsMixin('Donation'), models.Model):
