@@ -1,4 +1,7 @@
-FROM python:3.8
+FROM python:3.8-alpine
+
+COPY --from=trajano/alpine-libfaketime /faketime.so /lib/libfaketime.so
+RUN mkdir -p /etc/faketime
 
 RUN mkdir /e2e
 WORKDIR /e2e

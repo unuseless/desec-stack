@@ -6,7 +6,7 @@ from django.db.models.signals import post_save, post_delete
 from django.db.transaction import atomic
 from django.utils import timezone
 
-from desecapi import metrics
+from desecapi import metrics, replication
 from desecapi.models import RRset, RR, Domain
 from desecapi.pdns import _pdns_post, NSLORD, NSMASTER, _pdns_delete, _pdns_patch, _pdns_put, pdns_id, \
     construct_catalog_rrset
@@ -269,6 +269,7 @@ class PDNSChangeTracker:
         self.transaction.__exit__(None, None, None)
 
         for name in axfr_required:
+            replication.update.delay(name)
             _pdns_put(NSMASTER, '/zones/%s/axfr-retrieve' % pdns_id(name))
         Domain.objects.filter(name__in=axfr_required).update(published=timezone.now())
 

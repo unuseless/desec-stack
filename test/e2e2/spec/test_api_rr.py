@@ -1,9 +1,8 @@
-from time import sleep
 from typing import List, Tuple
 
 import pytest
 
-from conftest import DeSECAPIV1Client, NSClient
+from conftest import DeSECAPIV1Client, NSClient, Replication
 
 
 def generate_params(dict_value_lists_by_type: dict) -> List[Tuple[str, str]]:
@@ -166,9 +165,11 @@ def test_soundness():
 
 
 @pytest.mark.parametrize("rr_type,value", generate_params(VALID_RECORDS_CANONICAL))
-def test_create_valid_canonical(api_user_domain: DeSECAPIV1Client, ns_lord: NSClient, rr_type: str, value: str):
+def test_create_valid_canonical(api_user_domain: DeSECAPIV1Client, ns_lord: NSClient, rr_type: str, value: str,
+                                replication: Replication, assert_eventually):
     assert api_user_domain.rr_set_create(api_user_domain.domains[0], rr_type, [value], subname="a").status_code == 201
     assert ns_lord.query(f"a.{api_user_domain.domains[0]}", rr_type) == {value}
+    assert_eventually(lambda: replication.query(api_user_domain.domains[0], "a", rr_type) == {value})
 
 
 @pytest.mark.parametrize("rr_type,value", generate_params(VALID_RECORDS_NON_CANONICAL))

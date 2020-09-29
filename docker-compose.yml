@@ -120,10 +120,13 @@ services:
     - dbapi
     - nslord
     - nsmaster
-    - celery
+    - celery-email
+    - celery-replication
     - memcached
     tmpfs:
     - /var/local/django_metrics:size=500m
+    volumes:
+    - zones:/zones:rw
     environment:
     - DESECSTACK_DOMAIN
     - DESECSTACK_NS
@@ -242,14 +245,17 @@ services:
         tag: "desec/rabbitmq"
     restart: unless-stopped
 
-  celery:
+  celery-email:
     build: api
     image: desec/dedyn-api:latest
     init: true
-    command: celery -A api worker -l info --uid nobody --gid nogroup
+    command: celery worker -A api -E -Q email_slow_lane,email_fast_lane,email_immediate_lane -c 8 -n email -l info --uid nobody --gid nogroup
     depends_on:
     - dbapi
     - nslord
+    - rabbitmq
+    volumes:
+    - zones:/zones:rw
     environment:
     - DESECSTACK_DOMAIN
     - DESECSTACK_NS
@@ -275,7 +281,49 @@ services:
     logging:
       driver: "syslog"
       options:
-        tag: "desec/celery"
+        tag: "desec/celery-email"
+    restart: unless-stopped
+
+  celery-replication:
+    build: api
+    image: desec/dedyn-api:latest
+    init: true
+    command: celery worker -A api -E -B -s /var/run/celerybeat-schedule/db -Q replication -n replication -c 1 -l info --uid nobody --gid nogroup
+    depends_on:
+    - dbapi
+    - nslord
+    - rabbitmq
+    volumes:
+    - zones:/zones:rw
+    - celerybeat:/var/run/celerybeat-schedule
+    environment:
+    - DESECSTACK_DOMAIN
+    - DESECSTACK_NS
+    - DESECSTACK_API_ADMIN
+    - DESECSTACK_API_SEPA_CREDITOR_ID
+    - DESECSTACK_API_SEPA_CREDITOR_NAME
+    - DESECSTACK_API_EMAIL_HOST
+    - DESECSTACK_API_EMAIL_HOST_USER
+    - DESECSTACK_API_EMAIL_HOST_PASSWORD
+    - DESECSTACK_API_EMAIL_PORT
+    - DESECSTACK_API_SECRETKEY
+    - DESECSTACK_API_PSL_RESOLVER
+    - DESECSTACK_DBAPI_PASSWORD_desec
+    - DESECSTACK_IPV4_REAR_PREFIX16
+    - DESECSTACK_IPV6_SUBNET
+    - DESECSTACK_NSLORD_APIKEY
+    - DESECSTACK_NSLORD_DEFAULT_TTL
+    - DESECSTACK_NSMASTER_APIKEY
+    - DESECSTACK_MINIMUM_TTL_DEFAULT
+    networks:
+      rearapi_celery:
+      rearapi_dbapi:
+      rearapi_ns:
+        ipv4_address: ${DESECSTACK_IPV4_REAR_PREFIX16}.1.13
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/celery-replication"
     restart: unless-stopped
 
   memcached:
@@ -365,6 +413,8 @@ volumes:
   prometheus:
   rabbitmq_data:
   webapp_dist:
+  zones:
+  celerybeat:
 
 networks:
   # Note that it is required that the front network ranks lower (in lexical order)

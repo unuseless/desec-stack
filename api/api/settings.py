@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 from datetime import timedelta
 
+from celery.schedules import crontab
 from django.conf.global_settings import PASSWORD_HASHERS as DEFAULT_PASSWORD_HASHERS
+from kombu import Queue, Exchange
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -167,14 +169,32 @@ NSMASTER_PDNS_API_TOKEN = os.environ['DESECSTACK_NSMASTER_APIKEY']
 CATALOG_ZONE = 'catalog.internal'
 
 # Celery
+# TODO upgrade settings https://docs.celeryproject.org/en/stable/userguide/configuration.html#new-lowercase-settings
 CELERY_BROKER_URL = 'amqp://rabbitmq'
 CELERY_EMAIL_MESSAGE_EXTRA_ATTRIBUTES = []  # required because djcelery_email.utils accesses it
-CELERY_TASK_TIME_LIMIT = 30
-TASK_CONFIG = {  # The first entry is the default queue
+CELERY_TASK_TIME_LIMIT = 300  # as zones become larger, AXFR takes longer, this needs to be increased
+TASK_CONFIG = {  # The first entry is the default queue  # TODO rename in CELERY_TASK_CONFIG
     'email_slow_lane': {'rate_limit': '3/m'},
     'email_fast_lane': {'rate_limit': '1/s'},
     'email_immediate_lane': {'rate_limit': None},
 }
+CELERY_BEAT_SCHEDULE = {
+    'rotate_signatures': {
+        'task': 'desecapi.replication.rotate_signatures',
+        'schedule': crontab(minute=0, hour=0, day_of_week='thursday'),
+        'options': {'priority': 5},  # priority must be higher than rotation jobs for individual domains
+    },
+}
+CELERY_TASK_QUEUES = [
+    Queue(
+        'replication',
+        Exchange('replication'),
+        routing_key='replication',
+        queue_arguments={'x-max-priority': 10},  # make the replication queue a priority-queue
+    ),
+    # Other queues are created automatically
+]
+CELERY_BEAT_MAX_LOOP_INTERVAL = 15  # TODO increase?
 
 # pdns accepts request payloads of this size.
 # This will hopefully soon be configurable: https://github.com/PowerDNS/pdns/pull/7550

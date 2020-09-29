@@ -47,4 +47,5 @@ class MultiLaneEmailBackend(BaseEmailBackend):
 TASKS = {
     name: MultiLaneEmailBackend(lane=name, fail_silently=True).task
     for name in settings.TASK_CONFIG
+    if name.startswith('email_')
 }
