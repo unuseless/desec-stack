@@ -1,5 +1,7 @@
 FROM python:3.8-alpine
 
+RUN apk add --no-cache bash
+
 COPY --from=trajano/alpine-libfaketime /faketime.so /lib/libfaketime.so
 RUN mkdir -p /etc/faketime
 

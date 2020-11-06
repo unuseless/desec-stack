@@ -49,6 +49,7 @@ jobs:
         cd $GITHUB_WORKSPACE
         docker-compose build
         docker-compose -f docker-compose.yml -f docker-compose.test-e2e.yml build test-e2e
+        docker-compose -f docker-compose.yml -f docker-compose.test-e2e2.yml build test-e2e2
 
     - name: Check for missing migrations
       run: |
