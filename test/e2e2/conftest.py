@@ -190,7 +190,7 @@ class DeSECAPIV1Client:
 
     def rr_set_create(self, domain_name: str, rr_type: str, records: Iterable[str], subname: str = '',
                       ttl: int = 3600) -> requests.Response:
-        return self.patch(
+        return self.post(
             f"/domains/{domain_name}/rrsets/",
             data={
                 "subname": subname,
@@ -201,7 +201,7 @@ class DeSECAPIV1Client:
         )
 
     def rr_set_create_bulk(self, domain_name: str, data: list) -> requests.Response:
-        return self.post(f"/domains/{domain_name}/rrsets/", data=data)
+        return self.patch(f"/domains/{domain_name}/rrsets/", data=data)
 
 
 @pytest.fixture
